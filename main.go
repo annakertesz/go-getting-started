@@ -1,29 +1,31 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"github.com/go-chi/chi"
 
-	"github.com/gin-gonic/gin"
 	_ "github.com/heroku/x/hmetrics/onload"
 )
 
-func main() {
-	port := os.Getenv("PORT")
+func main(){
+	listenAddr := os.Getenv("PORT")
 
-	if port == "" {
+	if listenAddr == "" {
 		log.Fatal("$PORT must be set")
 	}
+	if err := http.ListenAndServe(listenAddr, Routes()); err != nil {
+		fmt.Printf("F")
+	}
+}
 
-	router := gin.New()
-	router.Use(gin.Logger())
-	router.LoadHTMLGlob("templates/*.tmpl.html")
-	router.Static("/static", "static")
+func Routes() chi.Router {
+	r := chi.NewRouter()
 
-	router.GET("/", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "index.tmpl.html", nil)
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		_, _ = fmt.Fprintln(w, "cp-audio-lib")
 	})
-
-	router.Run(":" + port)
+	return r
 }
